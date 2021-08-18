@@ -4,7 +4,7 @@
 module physics_types
 
   use shr_kind_mod,     only: r8 => shr_kind_r8
-  use ppgrid,           only: pcols, pver, psubcols
+  use ppgrid,           only: pcols, pver
   use constituents,     only: pcnst, qmin, cnst_name
   use geopotential,     only: geopotential_dse, geopotential_t
   use physconst,        only: zvir, gravit, cpair, rair, cpairv, rairv, cpliq, cpwv !+tht
@@ -173,8 +173,6 @@ contains
     integer, intent(in) :: psetcols
     
     integer :: ierr=0, lchnk
-    type(physics_state), pointer :: state
-    type(physics_tend), pointer :: tend
 
     allocate(phys_state(begchunk:endchunk), stat=ierr)
     if( ierr /= 0 ) then
@@ -203,11 +201,10 @@ contains
 ! Update the state and or tendency structure with the parameterization tendencies
 !-----------------------------------------------------------------------
     use shr_sys_mod,  only: shr_sys_flush
-    use constituents, only: cnst_get_ind, cnst_mw
+    use constituents, only: cnst_get_ind
     use scamMod,      only: scm_crm_mode, single_column
     use phys_control, only: phys_getopts
     use physconst,    only: physconst_update ! Routine which updates physconst variables (WACCM-X)
-    use ppgrid,       only: begchunk, endchunk
     use qneg_module,  only: qneg3
 
 !------------------------------Arguments--------------------------------
@@ -218,10 +215,10 @@ contains
     real(r8), intent(in) :: dt                     ! time step
 
     type(physics_tend ), intent(inout), optional  :: tend  ! Physics tendencies over timestep
-                    ! This is usually only needed by calls from physpkg.
+    ! tend is usually only needed by calls from physpkg.
 !
 !---------------------------Local storage-------------------------------
-    integer :: i,k,m                               ! column,level,constituent indices
+    integer :: k,m                                 ! column,level,constituent indices
     integer :: ixcldice, ixcldliq                  ! indices for CLDICE and CLDLIQ
     integer :: ixnumice, ixnumliq
     integer :: ixnumsnow, ixnumrain
@@ -271,6 +268,7 @@ contains
                //': state and tend must have the same number of psetcols.')
        end if
     end if
+
 
     !-----------------------------------------------------------------------
     call phys_getopts(state_debug_checks_out=state_debug_checks)
@@ -371,10 +369,11 @@ contains
     !------------------------------------------------------------------------
     ! Get indices for molecular weights and call WACCM-X physconst_update
     !------------------------------------------------------------------------
-    if ( waccmx_is('ionosphere') .or. waccmx_is('neutral') ) then 
-       call physconst_update(state%q, state%t, state%lchnk, ncol)
+    if ( waccmx_is('ionosphere') .or. waccmx_is('neutral') ) then
+       call physconst_update(state%q, state%t, state%lchnk, state%ncol, &
+                             to_moist_factor=state%pdeldry(:ncol,:)/state%pdel(:ncol,:) )
     endif
-    
+
     !-----------------------------------------------------------------------
     ! cpairv_loc and rairv_loc need to be allocated to a size which matches state and ptend
     ! If psetcols == pcols, the cpairv is the correct size and just copy
@@ -395,8 +394,8 @@ contains
     else
        call endrun('physics_update: rairv_loc is not allowed to vary when subcolumns are turned on')
     end if
-   
-    if ( waccmx_is('ionosphere') .or. waccmx_is('neutral') ) then 
+
+    if ( waccmx_is('ionosphere') .or. waccmx_is('neutral') ) then
       zvirv(:,:) = shr_const_rwv / rairv_loc(:,:) - 1._r8
     else
       zvirv(:,:) = zvir    
@@ -423,7 +422,7 @@ contains
             state%zi    , state%zm      , ncol         )
        ! update dry static energy for use in next process
        do k = ptend%top_level, ptend%bot_level
-          state%s(:ncol,k) = state%t(:ncol,k  )*cpairv_loc(:ncol,k) &
+          state%s(:ncol,k) = state%t(:ncol,k)*cpairv_loc(:ncol,k) &
                            + gravit*state%zm(:ncol,k) + state%phis(:ncol)
        end do
     end if
@@ -484,11 +483,10 @@ contains
 ! Check a physics_state object for invalid data (e.g NaNs, negative
 ! temperatures).
 !-----------------------------------------------------------------------
-    use shr_infnan_mod, only: shr_infnan_inf_type, assignment(=), &
+    use shr_infnan_mod, only: assignment(=), &
                               shr_infnan_posinf, shr_infnan_neginf
-    use shr_assert_mod, only: shr_assert, shr_assert_in_domain
-    use physconst,      only: pi
-    use constituents,   only: pcnst, qmin
+    use shr_assert_mod, only: shr_assert_in_domain
+    use constituents,   only: pcnst
 
 !------------------------------Arguments--------------------------------
     ! State to check.
@@ -661,7 +659,7 @@ contains
 
     ! 3-D variables
     do m = 1,pcnst
-       call shr_assert_in_domain(state%q(:ncol,:,m),    lt=posinf_r8, ge=qmin(m), &
+       call shr_assert_in_domain(state%q(:ncol,:,m),    lt=posinf_r8, gt=neginf_r8, &
             varname="state%q ("//trim(cnst_name(m))//")", msg=msg)
     end do
 
@@ -941,8 +939,6 @@ end subroutine physics_ptend_copy
 !------------------------------Arguments--------------------------------
     type(physics_ptend), intent(inout)  :: ptend   ! Parameterization tendencies
 !-----------------------------------------------------------------------
-    integer :: m             ! Index for constiuent
-!-----------------------------------------------------------------------
 
     if(ptend%ls) then
        ptend%s = 0._r8
@@ -1189,9 +1185,6 @@ end subroutine physics_ptend_copy
     ! 
     !-----------------------------------------------------------------------
 
-    use constituents, only : cnst_get_type_byind
-    use ppgrid,       only : begchunk, endchunk
-
     implicit none
     !
     ! Arguments
@@ -1205,7 +1198,7 @@ end subroutine physics_ptend_copy
     !
     integer  :: lchnk         ! chunk identifier
     integer  :: ncol          ! number of atmospheric columns
-    integer  :: i,k,m         ! Longitude, level indices
+    integer  :: k,m           ! Longitude, level indices
     real(r8) :: fdq(pcols)    ! mass adjustment factor
     real(r8) :: te(pcols)     ! total energy in a layer
     real(r8) :: utmp(pcols)   ! temp variable for recalculating the initial u values
@@ -1786,14 +1779,13 @@ end subroutine physics_tend_init
 subroutine set_state_pdry (state,pdeld_calc)
 
   use ppgrid,  only: pver
-  use pmgrid,  only: plev, plevp
   implicit none
 
   type(physics_state), intent(inout) :: state
   logical, optional, intent(in) :: pdeld_calc    !  .true. do calculate pdeld [default]
                                                  !  .false. don't calculate pdeld 
   integer ncol
-  integer i, k
+  integer k
   logical do_pdeld_calc
 
   if ( present(pdeld_calc) ) then
@@ -1878,7 +1870,7 @@ subroutine physics_state_alloc(state,lchnk,psetcols)
 
   integer, intent(in)                :: psetcols
 
-  integer :: ierr=0, i
+  integer :: ierr=0
 
   state%lchnk    = lchnk
   state%psetcols = psetcols
@@ -2198,7 +2190,6 @@ subroutine physics_tend_dealloc(tend)
 ! deallocate the individual tend components
 
   type(physics_tend), intent(inout)  :: tend
-  integer :: psetcols
   integer :: ierr = 0
 
   deallocate(tend%dtdt, stat=ierr)

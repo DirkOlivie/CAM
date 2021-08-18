@@ -2,7 +2,7 @@ module orbit
 
 contains
 
-subroutine zenith(calday  ,clat    , clon   ,coszrs  ,ncol, dt_avg, rad_call) !+tht
+subroutine zenith(calday  ,clat    , clon   ,coszrs  ,ncol, dt_avg, uniform_angle, rad_call) !+tht
 !----------------------------------------------------------------------- 
 ! 
 ! Purpose: 
@@ -30,7 +30,10 @@ subroutine zenith(calday  ,clat    , clon   ,coszrs  ,ncol, dt_avg, rad_call) !+
    real(r8), intent(in) :: clat(ncol)          ! Current centered latitude (radians)
    real(r8), intent(in) :: clon(ncol)          ! Centered longitude (radians)
    real(r8), intent(in), optional :: dt_avg    ! if present, time step to use for the shr_orb_cosz calculation
-   logical,  intent(in), optional :: rad_call  !+tht is this a radiation call?
+   real(r8), intent(in), optional :: uniform_angle    ! if present, then call coszrs with a uniform angle
+
+   logical,  intent(in), optional :: rad_call  !+tht is this a radiation call
+
 !
 ! Output arguments
 !
@@ -49,15 +52,19 @@ subroutine zenith(calday  ,clat    , clon   ,coszrs  ,ncol, dt_avg, rad_call) !+
 !
 ! Compute local cosine solar zenith angle,
 !
-   if (present(rad_call)) then !+tht pass rad_call arg
-    do i=1,ncol
-      coszrs(i) = shr_orb_cosz( calday, clat(i), clon(i), delta, dt_avg , rad_call)
-    end do
-   else
-    do i=1,ncol
-      coszrs(i) = shr_orb_cosz( calday, clat(i), clon(i), delta, dt_avg )
-    end do
-   endif
 
+   if (present(uniform_angle)) then
+      do i=1,ncol
+         coszrs(i) = shr_orb_cosz( calday, clat(i), clon(i), delta, dt_avg, uniform_angle=uniform_angle )
+      end do
+   else if (present(rad_call)) then !+tht pass rad_call arg                                                                                                                                                                                                       
+      do i=1,ncol                                                                                                                                                                                                                                              
+        coszrs(i) = shr_orb_cosz( calday, clat(i), clon(i), delta, dt_avg , rad_call)                                                                                                                                                                          
+      end do                                                                                                                                                                                                                                                   
+   else
+      do i=1,ncol
+         coszrs(i) = shr_orb_cosz( calday, clat(i), clon(i), delta, dt_avg )
+      end do
+   end if
 end subroutine zenith
 end module orbit
