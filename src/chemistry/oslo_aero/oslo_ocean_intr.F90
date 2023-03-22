@@ -49,6 +49,8 @@ module oslo_ocean_intr
    public :: oslo_opom_emis_intr ! calculate opom surface emissions
    public :: oslo_opom_inq       ! logical function which tells oslo_salt what to do
    public :: oslo_vsls_emis_intr ! calculate vsls surface emissions
+   public :: oslo_n2o_emis_intr  ! calculate n2o surface emissions
+   public :: oslo_nh3_emis_intr  ! calculate nh3 surface emissions
 
 
 
@@ -86,6 +88,12 @@ module oslo_ocean_intr
    character(len=20)  :: vsls_source                     ! will be collected from NAMELIST   
    integer            :: pndx_chbr3                      !CHBR3 surface flux physcis index 
 
+   character(len=20)  :: n2o_source                      ! will be collected from NAMELIST   
+   integer            :: pndx_n2o                        !N2O surface flux physcis index 
+
+   character(len=20)  :: nh3_source                      ! will be collected from NAMELIST   
+   integer            :: pndx_nh3                        !NH3 surface flux physcis index 
+
 contains
 !---------------------------------------------------------------------
 !---------------------------------------------------------------------
@@ -106,6 +114,8 @@ subroutine oslo_ocean_getnl()
    character(len=32)  ::  in_opom_data_type
    integer            ::  in_opom_cycle_yr
    character(len=20)  ::  in_vsls_data_source
+   character(len=20)  ::  in_n2o_data_source
+   character(len=20)  ::  in_nh3_data_source
 
    ! Initialize namelist variables from local module variables.
    in_filename         = filename
@@ -117,6 +127,8 @@ subroutine oslo_ocean_getnl()
    in_opom_cycle_yr    = opom_cycle_yr
    in_opom_data_source = opom_source
    in_vsls_data_source = vsls_source
+   in_n2o_data_source  = n2o_source
+   in_nh3_data_source  = nh3_source
 
    ! Read namelist.
    call oslo_getopts(dms_source_out      = in_dms_data_source,  &
@@ -126,6 +138,8 @@ subroutine oslo_ocean_getnl()
                      opom_source_type_out= in_opom_data_type,   &
                      opom_cycle_year_out = in_opom_cycle_yr,    &
                      vsls_source_out     = in_vsls_data_source, & 
+                     n2o_source_out      = in_n2o_data_source,  & 
+                     nh3_source_out      = in_nh3_data_source,  & 
                      ocean_filename_out  = in_filename,         &
                      ocean_filepath_out  = in_datapath)
 
@@ -140,6 +154,8 @@ subroutine oslo_ocean_getnl()
    opom_cycle_yr = in_opom_cycle_yr
    opom_source   = in_opom_data_source
    vsls_source   = in_vsls_data_source
+   n2o_source    = in_n2o_data_source
+   nh3_source    = in_nh3_data_source
 
    ! Write new value set from namelist to log
 !   write(iulog,*)"test pom namelist 2: " // trim(opom_source)
@@ -172,6 +188,12 @@ subroutine oslo_ocean_init()
 
    !get physics index for chbr3 surface flux.  Index for cflx
    call cnst_get_ind('CHBR3', pndx_chbr3, abort=.true.)
+
+   !get physics index for n2o surface flux.  Index for cflx
+   call cnst_get_ind('N2O', pndx_n2o, abort=.true.)
+
+   !get physics index for nh3 surface flux.  Index for cflx
+   call cnst_get_ind('NH3', pndx_nh3, abort=.true.)
 
    if (dms_source=='lana')then
       emis_species(1) = dmsl_fld_name
@@ -355,6 +377,46 @@ subroutine oslo_vsls_emis_intr(state, cam_in)
    endif
 
 endsubroutine oslo_vsls_emis_intr
+!------------------------------------------------------------------------------------------
+!------------------------------------------------------------------------------------------
+
+subroutine oslo_n2o_emis_intr(state, cam_in)
+
+   use physics_types, only: physics_state
+
+   type(physics_state),    intent(in)    :: state   ! Physics state variables
+   type(cam_in_t), target, intent(inout) :: cam_in  ! import state
+
+   integer                               :: ncol       ![nbr] number of columns in use
+
+   ncol  = state%ncol
+
+   ! IF OCEAN FLUX
+   if(n2o_source=='ocean_flux') then 
+      cam_in%cflx(:ncol, pndx_n2o)  =  cam_in%fn2o_ocn(:ncol)
+   endif
+
+endsubroutine oslo_n2o_emis_intr
+!------------------------------------------------------------------------------------------
+!------------------------------------------------------------------------------------------
+
+subroutine oslo_nh3_emis_intr(state, cam_in)
+
+   use physics_types, only: physics_state
+
+   type(physics_state),    intent(in)    :: state   ! Physics state variables
+   type(cam_in_t), target, intent(inout) :: cam_in  ! import state
+
+   integer                               :: ncol       ![nbr] number of columns in use
+
+   ncol  = state%ncol
+
+   ! IF OCEAN FLUX
+   if(nh3_source=='ocean_flux') then 
+      cam_in%cflx(:ncol, pndx_nh3)  =  cam_in%fnh3_ocn(:ncol)
+   endif
+
+endsubroutine oslo_nh3_emis_intr
 !------------------------------------------------------------------------------------------
 !------------------------------------------------------------------------------------------
 

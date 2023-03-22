@@ -737,6 +737,7 @@ end subroutine aero_model_init
     use seasalt_model, only: oslo_salt_emis_intr, seasalt_active, OMOceanSource
     use dust_model, only: oslo_dust_emis_intr, dust_active
     use oslo_ocean_intr, only: oslo_dms_emis_intr, oslo_vsls_emis_intr
+    use oslo_ocean_intr, only: oslo_n2o_emis_intr, oslo_nh3_emis_intr
     use aerosoldef, only: l_om_ni
     use physics_types, only: physics_state
 
@@ -775,6 +776,12 @@ end subroutine aero_model_init
 
     !Pick up correct VSLS (only CHBR3 currently) emissions
     call oslo_vsls_emis_intr(state, cam_in)
+
+    !Pick up correct N2O emissions
+    call oslo_n2o_emis_intr(state, cam_in)
+
+    !Pick up correct NH3 emissions
+    call oslo_nh3_emis_intr(state, cam_in)
 
   end subroutine aero_model_emissions
 
