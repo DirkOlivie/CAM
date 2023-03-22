@@ -82,6 +82,8 @@ module camsrfexch
      real(r8), pointer, dimension(:) :: nhx_nitrogen_flx ! nitrogen deposition fluxes (kgN/m2/s)
      real(r8), pointer, dimension(:) :: noy_nitrogen_flx ! nitrogen deposition fluxes (kgN/m2/s)
      real(r8) :: chbr3prog(pcols)    ! volume mixing ratio of CHBr3 (pptv)
+     real(r8) :: n2oprog(pcols)      ! volume mixing ratio of N2O (pptv)
+     real(r8) :: nh3prog(pcols)      ! volume mixing ratio of NH3 (pptv)
   end type cam_out_t 
 
 !---------------------------------------------------------------------------
@@ -111,6 +113,10 @@ module camsrfexch
      real(r8) :: fco2_ocn(pcols)         ! co2 flux from ocn
      real(r8) :: fdms(pcols)             ! dms flux
      real(r8) :: fchbr3(pcols)           ! chbr3 flux
+     real(r8) :: fn2o_lnd(pcols)         ! n2o flux from lnd
+     real(r8) :: fn2o_ocn(pcols)         ! n2o flux from ocn
+     real(r8) :: fnh3_lnd(pcols)         ! nh3 flux from lnd
+     real(r8) :: fnh3_ocn(pcols)         ! nh3 flux from ocn
      real(r8) :: landfrac(pcols)         ! land area fraction
      real(r8) :: icefrac(pcols)          ! sea-ice areal fraction
      real(r8) :: ocnfrac(pcols)          ! ocean areal fraction
@@ -247,6 +253,10 @@ CONTAINS
        cam_in(c)%fco2_ocn (:) = 0._r8
        cam_in(c)%fdms     (:) = 0._r8
        cam_in(c)%fchbr3   (:) = 0._r8
+       cam_in(c)%fn2o_lnd (:) = 0._r8
+       cam_in(c)%fn2o_ocn (:) = 0._r8
+       cam_in(c)%fnh3_lnd (:) = 0._r8
+       cam_in(c)%fnh3_ocn (:) = 0._r8
        cam_in(c)%landfrac (:) = posinf
        cam_in(c)%icefrac  (:) = posinf
        cam_in(c)%ocnfrac  (:) = posinf
@@ -359,6 +369,8 @@ CONTAINS
        cam_out(c)%dstdry4(:)  = 0._r8
        cam_out(c)%dstwet4(:)  = 0._r8
        cam_out(c)%chbr3prog(:)= 0._r8
+       cam_out(c)%n2oprog(:)  = 0._r8
+       cam_out(c)%nh3prog(:)  = 0._r8
 
        nullify(cam_out(c)%nhx_nitrogen_flx)
        nullify(cam_out(c)%noy_nitrogen_flx)
@@ -473,6 +485,10 @@ subroutine cam_export(state,cam_out,pbuf)
 
    integer :: ind_phys_chbr3
    integer :: ind_chem_chbr3
+   integer :: ind_phys_n2o
+   integer :: ind_chem_n2o
+   integer :: ind_phys_nh3
+   integer :: ind_chem_nh3
 
    real(r8), pointer :: psl(:)
 
@@ -549,6 +565,22 @@ subroutine cam_export(state,cam_out,pbuf)
 
    do i = 1, ncol     
       cam_out%chbr3prog(i) = state%q(i,pver,ind_phys_chbr3) * 1.0e+12_r8 * mwdry/adv_mass(ind_chem_chbr3)
+   end do
+
+   ! obtain the tracer index of N2O for phyics-array and chemistry array
+   call cnst_get_ind('N2O', ind_phys_n2o) 
+   ind_chem_n2o =get_spc_ndx('N2O')
+
+   do i = 1, ncol     
+      cam_out%n2oprog(i) = state%q(i,pver,ind_phys_n2o) * 1.0e+12_r8 * mwdry/adv_mass(ind_chem_n2o)
+   end do
+
+   ! obtain the tracer index of NH3 for phyics-array and chemistry array
+   call cnst_get_ind('NH3', ind_phys_nh3) 
+   ind_chem_nh3 =get_spc_ndx('NH3')
+
+   do i = 1, ncol     
+      cam_out%nh3prog(i) = state%q(i,pver,ind_phys_nh3) * 1.0e+12_r8 * mwdry/adv_mass(ind_chem_nh3)
    end do
 
    cam_out%co2diag(:ncol) = chem_surfvals_get('CO2VMR') * 1.0e+6_r8 

@@ -441,6 +441,8 @@
       <value compset="_BGC%BDRDDMS"> co2_cycle_rad_passive=.true.,dms_source='ocean_flux' </value>
       <value compset="_BGC%BPRPDMS%VSLSC"> dms_source='ocean_flux',vsls_source='ocean_flux' </value>
       <value compset="_BGC%BDRDDMS%VSLSC"> co2_cycle_rad_passive=.true.,dms_source='ocean_flux',vsls_source='ocean_flux' </value>
+      <value compset="_BGC%BPRPDMS%VSLSC%N2OC%NH3C"> dms_source='ocean_flux',vsls_source='ocean_flux',n2o_source='ocean_flux',nh3_source='ocean_flux' </value>
+      <value compset="_BGC%BDRDDMS%VSLSC%N2OC%NH3C"> co2_cycle_rad_passive=.true.,dms_source='ocean_flux',vsls_source='ocean_flux',n2o_source='ocean_flux',nh3_source='ocean_flux' </value>
       <value compset="_BGC%DMS"> dms_source='ocean_flux' </value>
       <value compset="_CAM60%NORESM%4xCO2"> co2vmr=1138.8e-6  </value>  
       <value compset="_CAM60%NORESM%FRC2%4xCO2"> co2vmr=1138.8e-6  </value>  

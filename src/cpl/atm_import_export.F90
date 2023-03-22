@@ -123,6 +123,14 @@ contains
           if (index_x2a_Faoo_fbrf_ocn /= 0) then
              cam_in(c)%fchbr3(i)     = -x2a(index_x2a_Faoo_fbrf_ocn,ig)
           end if
+          ! Get N2O fluxes from ocn in kg N2O /m^2/s units
+          if (index_x2a_Faoo_fn2o_ocn /= 0) then
+             cam_in(c)%fn2o_ocn(i)     = -x2a(index_x2a_Faoo_fn2o_ocn,ig)
+          end if
+          ! Get NH3 fluxes from ocn in kg NH3 /m^2/s units
+          if (index_x2a_Faoo_fnh3_ocn /= 0) then
+             cam_in(c)%fnh3_ocn(i)     = -x2a(index_x2a_Faoo_fnh3_ocn,ig)
+          end if
 
           ig=ig+1
 
@@ -280,6 +288,12 @@ contains
           endif
           if (index_a2x_Sa_brfprog /= 0) then
              a2x(index_a2x_Sa_brfprog,ig) = cam_out(c)%chbr3prog(i) ! atm prognostic bromoform
+          end if
+          if (index_a2x_Sa_n2oprog /= 0) then
+             a2x(index_a2x_Sa_n2oprog,ig) = cam_out(c)%n2oprog(i) ! atm prognostic n2o
+          end if
+          if (index_a2x_Sa_nh3prog /= 0) then
+             a2x(index_a2x_Sa_nh3prog,ig) = cam_out(c)%nh3prog(i) ! atm prognostic nh3
           end if
 
           ig=ig+1

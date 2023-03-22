@@ -7088,6 +7088,22 @@ Default: FALSE
        group="seq_cplflds_inparm" valid_values="" >
 Default: FALSE
 </entry>
+<entry id="flds_n2oa" type="logical"  category="driver"
+       group="seq_cplflds_inparm" valid_values="" >
+Default: FALSE
+</entry>
+<entry id="flds_n2oc" type="logical"  category="driver"
+       group="seq_cplflds_inparm" valid_values="" >
+Default: FALSE
+</entry>
+<entry id="flds_nh3a" type="logical"  category="driver"
+       group="seq_cplflds_inparm" valid_values="" >
+Default: FALSE
+</entry>
+<entry id="flds_nh3c" type="logical"  category="driver"
+       group="seq_cplflds_inparm" valid_values="" >
+Default: FALSE
+</entry>
 
 <!-- Task/Thread layouts -->
 
@@ -7820,7 +7836,19 @@ Default: 2000
 
 <entry id="vsls_source" type="char*20" category="cam_oslo"
        group="oslo_ctl_nl" valid_values="" >
-Type of DMS data source
+Type of VSLS data source
+Default: none
+</entry>
+
+<entry id="n2o_source" type="char*20" category="cam_oslo"
+       group="oslo_ctl_nl" valid_values="" >
+Type of N2O data source
+Default: none
+</entry>
+
+<entry id="nh3_source" type="char*20" category="cam_oslo"
+       group="oslo_ctl_nl" valid_values="" >
+Type of NH3 data source
 Default: none
 </entry>
 

@@ -1,94 +1,100 @@
-module cam_cpl_indices
-  
-  use seq_flds_mod
-  use mct_mod
-  use seq_drydep_mod, only: drydep_fields_token, lnd_drydep
-  use shr_megan_mod,  only: shr_megan_fields_token, shr_megan_mechcomps_n
-  use shr_fire_emis_mod, only: shr_fire_emis_fields_token, shr_fire_emis_ztop_token, shr_fire_emis_mechcomps_n
+        module cam_cpl_indices
+          
+          use seq_flds_mod
+          use mct_mod
+          use seq_drydep_mod, only: drydep_fields_token, lnd_drydep
+          use shr_megan_mod,  only: shr_megan_fields_token, shr_megan_mechcomps_n
+          use shr_fire_emis_mod, only: shr_fire_emis_fields_token, shr_fire_emis_ztop_token, shr_fire_emis_mechcomps_n
 
-  implicit none
+          implicit none
 
-  SAVE
-  public                               ! By default make data private
+          SAVE
+          public                               ! By default make data private
 
-  integer :: index_a2x_Sa_z            ! bottom atm level height
-  integer :: index_a2x_Sa_topo         ! surface topographic height
-  integer :: index_a2x_Sa_u            ! bottom atm level zon wind
-  integer :: index_a2x_Sa_v            ! bottom atm level mer wind
-  integer :: index_a2x_Sa_tbot         ! bottom atm level temp
-  integer :: index_a2x_Sa_ptem         ! bottom atm level pot temp
-  integer :: index_a2x_Sa_shum         ! bottom atm level spec hum
-  integer :: index_a2x_Sa_dens         ! bottom atm level air den
-  integer :: index_a2x_Sa_pbot         ! bottom atm level pressure
-  integer :: index_a2x_Sa_pslv         ! sea level atm pressure
-  integer :: index_a2x_Faxa_lwdn       ! downward lw heat flux
-  integer :: index_a2x_Faxa_rainc      ! prec: liquid "convective"
-  integer :: index_a2x_Faxa_rainl      ! prec: liquid "large scale"
-  integer :: index_a2x_Faxa_snowc      ! prec: frozen "convective"
-  integer :: index_a2x_Faxa_snowl      ! prec: frozen "large scale"
-  integer :: index_a2x_Faxa_swndr      ! sw: nir direct  downward
-  integer :: index_a2x_Faxa_swvdr      ! sw: vis direct  downward
-  integer :: index_a2x_Faxa_swndf      ! sw: nir diffuse downward
-  integer :: index_a2x_Faxa_swvdf      ! sw: vis diffuse downward
-  integer :: index_a2x_Faxa_swnet      ! sw: net
-  integer :: index_a2x_Faxa_bcphidry   ! flux: Black Carbon hydrophilic dry deposition
-  integer :: index_a2x_Faxa_bcphodry   ! flux: Black Carbon hydrophobic dry deposition
-  integer :: index_a2x_Faxa_bcphiwet   ! flux: Black Carbon hydrophilic wet deposition
-  integer :: index_a2x_Faxa_ocphidry   ! flux: Organic Carbon hydrophilic dry deposition
-  integer :: index_a2x_Faxa_ocphodry   ! flux: Organic Carbon hydrophobic dry deposition
-  integer :: index_a2x_Faxa_ocphiwet   ! flux: Organic Carbon hydrophilic dry deposition
-  integer :: index_a2x_Faxa_dstwet1    ! flux: Size 1 dust -- wet deposition
-  integer :: index_a2x_Faxa_dstwet2    ! flux: Size 2 dust -- wet deposition
-  integer :: index_a2x_Faxa_dstwet3    ! flux: Size 3 dust -- wet deposition
-  integer :: index_a2x_Faxa_dstwet4    ! flux: Size 4 dust -- wet deposition
-  integer :: index_a2x_Faxa_dstdry1    ! flux: Size 1 dust -- dry deposition
-  integer :: index_a2x_Faxa_dstdry2    ! flux: Size 2 dust -- dry deposition
-  integer :: index_a2x_Faxa_dstdry3    ! flux: Size 3 dust -- dry deposition
-  integer :: index_a2x_Faxa_dstdry4    ! flux: Size 4 dust -- dry deposition
-  integer :: index_a2x_Sa_co2prog      ! bottom atm level prognostic co2
-  integer :: index_a2x_Sa_co2diag      ! bottom atm level diagnostic co2
-  integer :: index_a2x_Faxa_nhx        ! flux: Nitrogen deposition
-  integer :: index_a2x_Faxa_noy        ! flux: Nitrogen deposition
-  integer :: index_a2x_Sa_brfprog      ! bottom atm level prognostic bromoform
+          integer :: index_a2x_Sa_z            ! bottom atm level height
+          integer :: index_a2x_Sa_topo         ! surface topographic height
+          integer :: index_a2x_Sa_u            ! bottom atm level zon wind
+          integer :: index_a2x_Sa_v            ! bottom atm level mer wind
+          integer :: index_a2x_Sa_tbot         ! bottom atm level temp
+          integer :: index_a2x_Sa_ptem         ! bottom atm level pot temp
+          integer :: index_a2x_Sa_shum         ! bottom atm level spec hum
+          integer :: index_a2x_Sa_dens         ! bottom atm level air den
+          integer :: index_a2x_Sa_pbot         ! bottom atm level pressure
+          integer :: index_a2x_Sa_pslv         ! sea level atm pressure
+          integer :: index_a2x_Faxa_lwdn       ! downward lw heat flux
+          integer :: index_a2x_Faxa_rainc      ! prec: liquid "convective"
+          integer :: index_a2x_Faxa_rainl      ! prec: liquid "large scale"
+          integer :: index_a2x_Faxa_snowc      ! prec: frozen "convective"
+          integer :: index_a2x_Faxa_snowl      ! prec: frozen "large scale"
+          integer :: index_a2x_Faxa_swndr      ! sw: nir direct  downward
+          integer :: index_a2x_Faxa_swvdr      ! sw: vis direct  downward
+          integer :: index_a2x_Faxa_swndf      ! sw: nir diffuse downward
+          integer :: index_a2x_Faxa_swvdf      ! sw: vis diffuse downward
+          integer :: index_a2x_Faxa_swnet      ! sw: net
+          integer :: index_a2x_Faxa_bcphidry   ! flux: Black Carbon hydrophilic dry deposition
+          integer :: index_a2x_Faxa_bcphodry   ! flux: Black Carbon hydrophobic dry deposition
+          integer :: index_a2x_Faxa_bcphiwet   ! flux: Black Carbon hydrophilic wet deposition
+          integer :: index_a2x_Faxa_ocphidry   ! flux: Organic Carbon hydrophilic dry deposition
+          integer :: index_a2x_Faxa_ocphodry   ! flux: Organic Carbon hydrophobic dry deposition
+          integer :: index_a2x_Faxa_ocphiwet   ! flux: Organic Carbon hydrophilic dry deposition
+          integer :: index_a2x_Faxa_dstwet1    ! flux: Size 1 dust -- wet deposition
+          integer :: index_a2x_Faxa_dstwet2    ! flux: Size 2 dust -- wet deposition
+          integer :: index_a2x_Faxa_dstwet3    ! flux: Size 3 dust -- wet deposition
+          integer :: index_a2x_Faxa_dstwet4    ! flux: Size 4 dust -- wet deposition
+          integer :: index_a2x_Faxa_dstdry1    ! flux: Size 1 dust -- dry deposition
+          integer :: index_a2x_Faxa_dstdry2    ! flux: Size 2 dust -- dry deposition
+          integer :: index_a2x_Faxa_dstdry3    ! flux: Size 3 dust -- dry deposition
+          integer :: index_a2x_Faxa_dstdry4    ! flux: Size 4 dust -- dry deposition
+          integer :: index_a2x_Sa_co2prog      ! bottom atm level prognostic co2
+          integer :: index_a2x_Sa_co2diag      ! bottom atm level diagnostic co2
+          integer :: index_a2x_Faxa_nhx        ! flux: Nitrogen deposition
+          integer :: index_a2x_Faxa_noy        ! flux: Nitrogen deposition
+          integer :: index_a2x_Sa_brfprog      ! bottom atm level prognostic bromoform
+          integer :: index_a2x_Sa_n2oprog      ! bottom atm level prognostic n2o
+          integer :: index_a2x_Sa_nh3prog      ! bottom atm level prognostic nh3
 
-  integer :: index_x2a_Sx_t            ! surface temperature             
-  integer :: index_x2a_So_t            ! sea surface temperature         
-  integer :: index_x2a_Sf_lfrac        ! surface land fraction           
-  integer :: index_x2a_Sf_ifrac        ! surface ice fraction            
-  integer :: index_x2a_Sf_ofrac        ! surface ocn fraction            
-  integer :: index_x2a_Sx_tref         ! 2m reference temperature        
-  integer :: index_x2a_Sx_qref         ! 2m reference specific humidity  
-  integer :: index_x2a_Sx_avsdr        ! albedo, visible, direct         
-  integer :: index_x2a_Sx_anidr        ! albedo, near-ir, direct         
-  integer :: index_x2a_Sx_avsdf        ! albedo, visible, diffuse        
-  integer :: index_x2a_Sx_anidf        ! albedo, near-ir, diffuse        
-  integer :: index_x2a_Sl_snowh        ! surface snow depth over land
-  integer :: index_x2a_Si_snowh        ! surface snow depth over ice
-  integer :: index_x2a_Sl_fv           ! friction velocity
-  integer :: index_x2a_Sl_ram1         ! aerodynamical resistance
-  integer :: index_x2a_Sl_soilw        ! volumetric soil water
-  integer :: index_x2a_Faxx_taux       ! wind stress, zonal              
-  integer :: index_x2a_Faxx_tauy       ! wind stress, meridional         
-  integer :: index_x2a_Faxx_lat        ! latent          heat flux       
-  integer :: index_x2a_Faxx_sen        ! sensible        heat flux       
-  integer :: index_x2a_Faxx_lwup       ! upward longwave heat flux       
-  integer :: index_x2a_Faxx_evap       ! evaporation    water flux       
-  integer :: index_x2a_Fall_flxdst1    ! dust flux size bin 1    
-  integer :: index_x2a_Fall_flxdst2    ! dust flux size bin 2    
-  integer :: index_x2a_Fall_flxdst3    ! dust flux size bin 3    
-  integer :: index_x2a_Fall_flxdst4    ! dust flux size bin 4
-  integer :: index_x2a_Fall_flxvoc     ! MEGAN emissions fluxes   
-  integer :: index_x2a_Fall_flxfire    ! Fire emissions fluxes   
-  integer :: index_x2a_Sl_ztopfire   ! Fire emissions fluxes top of vert distribution  
-  integer :: index_x2a_Fall_fco2_lnd   ! co2 flux from land   
-  integer :: index_x2a_Faoo_fco2_ocn   ! co2 flux from ocean  
-  integer :: index_x2a_Faoo_fdms_ocn   ! dms flux from ocean
+          integer :: index_x2a_Sx_t            ! surface temperature             
+          integer :: index_x2a_So_t            ! sea surface temperature         
+          integer :: index_x2a_Sf_lfrac        ! surface land fraction           
+          integer :: index_x2a_Sf_ifrac        ! surface ice fraction            
+          integer :: index_x2a_Sf_ofrac        ! surface ocn fraction            
+          integer :: index_x2a_Sx_tref         ! 2m reference temperature        
+          integer :: index_x2a_Sx_qref         ! 2m reference specific humidity  
+          integer :: index_x2a_Sx_avsdr        ! albedo, visible, direct         
+          integer :: index_x2a_Sx_anidr        ! albedo, near-ir, direct         
+          integer :: index_x2a_Sx_avsdf        ! albedo, visible, diffuse        
+          integer :: index_x2a_Sx_anidf        ! albedo, near-ir, diffuse        
+          integer :: index_x2a_Sl_snowh        ! surface snow depth over land
+          integer :: index_x2a_Si_snowh        ! surface snow depth over ice
+          integer :: index_x2a_Sl_fv           ! friction velocity
+          integer :: index_x2a_Sl_ram1         ! aerodynamical resistance
+          integer :: index_x2a_Sl_soilw        ! volumetric soil water
+          integer :: index_x2a_Faxx_taux       ! wind stress, zonal              
+          integer :: index_x2a_Faxx_tauy       ! wind stress, meridional         
+          integer :: index_x2a_Faxx_lat        ! latent          heat flux       
+          integer :: index_x2a_Faxx_sen        ! sensible        heat flux       
+          integer :: index_x2a_Faxx_lwup       ! upward longwave heat flux       
+          integer :: index_x2a_Faxx_evap       ! evaporation    water flux       
+          integer :: index_x2a_Fall_flxdst1    ! dust flux size bin 1    
+          integer :: index_x2a_Fall_flxdst2    ! dust flux size bin 2    
+          integer :: index_x2a_Fall_flxdst3    ! dust flux size bin 3    
+          integer :: index_x2a_Fall_flxdst4    ! dust flux size bin 4
+          integer :: index_x2a_Fall_flxvoc     ! MEGAN emissions fluxes   
+          integer :: index_x2a_Fall_flxfire    ! Fire emissions fluxes   
+          integer :: index_x2a_Sl_ztopfire   ! Fire emissions fluxes top of vert distribution  
+          integer :: index_x2a_Fall_fco2_lnd   ! co2 flux from land   
+          integer :: index_x2a_Faoo_fco2_ocn   ! co2 flux from ocean  
+          integer :: index_x2a_Faoo_fdms_ocn   ! dms flux from ocean
   integer :: index_x2a_So_ustar	       ! surface friction velocity in ocean
   integer :: index_x2a_So_re           ! square of atm/ocn exch. coeff 
   integer :: index_x2a_So_ssq          ! surface saturation specific humidity in ocean 
   integer :: index_x2a_Sl_ddvel        ! dry deposition velocities from land
   integer :: index_x2a_Sx_u10          ! 10m wind
   integer :: index_x2a_Faoo_fbrf_ocn   ! bromoform flux from ocean
+  integer :: index_x2a_Fall_fn2o_lnd   ! n2o flux from land
+  integer :: index_x2a_Faoo_fn2o_ocn   ! n2o flux from ocean
+  integer :: index_x2a_Fall_fnh3_lnd   ! nh3 flux from land
+  integer :: index_x2a_Faoo_fnh3_ocn   ! nh3 flux from ocean
 
 contains
 
@@ -144,6 +150,10 @@ contains
     index_x2a_Faoo_fco2_ocn = mct_avect_indexra(x2a,'Faoo_fco2_ocn',perrWith='quiet')
     index_x2a_Faoo_fdms_ocn = mct_avect_indexra(x2a,'Faoo_fdms_ocn',perrWith='quiet')
     index_x2a_Faoo_fbrf_ocn = mct_avect_indexra(x2a,'Faoo_fbrf_ocn',perrWith='quiet')
+    index_x2a_Fall_fn2o_lnd = mct_avect_indexra(x2a,'Fall_fn2o_lnd',perrWith='quiet')
+    index_x2a_Faoo_fn2o_ocn = mct_avect_indexra(x2a,'Faoo_fn2o_ocn',perrWith='quiet')
+    index_x2a_Fall_fnh3_lnd = mct_avect_indexra(x2a,'Fall_fnh3_lnd',perrWith='quiet')
+    index_x2a_Faoo_fnh3_ocn = mct_avect_indexra(x2a,'Faoo_fnh3_ocn',perrWith='quiet')
 
     if (shr_megan_mechcomps_n>0) then
        index_x2a_Fall_flxvoc = mct_avect_indexra(x2a,trim(shr_megan_fields_token))
@@ -204,6 +214,8 @@ contains
     index_a2x_Faxa_nhx      = mct_avect_indexra(a2x,'Faxa_nhx',perrWith='quiet')
     index_a2x_Faxa_noy      = mct_avect_indexra(a2x,'Faxa_noy',perrWith='quiet')
     index_a2x_Sa_brfprog    = mct_avect_indexra(a2x,'Sa_brfprog',perrWith='quiet')
+    index_a2x_Sa_n2oprog    = mct_avect_indexra(a2x,'Sa_n2oprog',perrWith='quiet')
+    index_a2x_Sa_nh3prog    = mct_avect_indexra(a2x,'Sa_nh3prog',perrWith='quiet')
 
     call mct_aVect_clean(x2a)
     call mct_aVect_clean(a2x)

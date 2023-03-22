@@ -35,6 +35,8 @@ character(len=32), private                    :: dms_source_type  = unset_str
 character(len=20), private                    :: opom_source      = unset_str
 character(len=32), private                    :: opom_source_type = unset_str
 character(len=20), private                    :: vsls_source      = unset_str 
+character(len=20), private                    :: n2o_source       = unset_str 
+character(len=20), private                    :: nh3_source       = unset_str 
 character(len=dir_string_length), private     :: ocean_filename   = unset_str
 character(len=dir_string_length), private     :: ocean_filepath   = unset_str
 integer, private                              :: dms_cycle_year   = 0 ! =unset_int?
@@ -62,7 +64,7 @@ subroutine oslo_ctl_readnl(nlfile)
    namelist /oslo_ctl_nl/ volc_fraction_coarse, aerotab_table_dir, dms_source, &
                           dms_source_type, opom_source, opom_source_type, &
                           ocean_filename, ocean_filepath, dms_cycle_year, opom_cycle_year, &
-                          vsls_source     
+                          vsls_source, n2o_source, nh3_source     
    !-----------------------------------------------------------------------------
 
    if (masterproc) then
@@ -94,6 +96,10 @@ subroutine oslo_ctl_readnl(nlfile)
    call mpibcast(opom_cycle_year,                             1 , mpiint,   0, mpicom)
 !new vsls variables
    call mpibcast(vsls_source,            len(vsls_source)       , mpichar,  0, mpicom)
+!new n2o variables
+   call mpibcast(n2o_source,             len(n2o_source)        , mpichar,  0, mpicom)
+!new nh3 variables
+   call mpibcast(nh3_source,             len(nh3_source)        , mpichar,  0, mpicom)
 
 #endif
 
@@ -177,7 +183,9 @@ subroutine oslo_getopts(volc_fraction_coarse_out, &
                         ocean_filepath_out,       &
                         opom_cycle_year_out,      &
                         dms_cycle_year_out,       &
-                        vsls_source_out)
+                        vsls_source_out,          &
+                        n2o_source_out,           &
+                        nh3_source_out)
 !-----------------------------------------------------------------------
 ! Purpose: Return runtime settings
 !-----------------------------------------------------------------------
@@ -194,6 +202,8 @@ subroutine oslo_getopts(volc_fraction_coarse_out, &
    character(len=32),                intent(out), optional :: opom_source_type_out
    integer          ,                intent(out), optional :: opom_cycle_year_out
    character(len=20),                intent(out), optional :: vsls_source_out
+   character(len=20),                intent(out), optional :: n2o_source_out
+   character(len=20),                intent(out), optional :: nh3_source_out
 
    if ( present(volc_fraction_coarse_out) ) volc_fraction_coarse_out = volc_fraction_coarse
    if ( present(aerotab_table_dir_out) ) aerotab_table_dir_out = aerotab_table_dir
@@ -207,6 +217,8 @@ subroutine oslo_getopts(volc_fraction_coarse_out, &
    if ( present(opom_source_type_out))opom_source_type_out= opom_source_type
    if ( present(opom_cycle_year_out) )opom_cycle_year_out = opom_cycle_year
    if ( present(vsls_source_out) )    vsls_source_out     = vsls_source
+   if ( present(n2o_source_out) )     n2o_source_out      = n2o_source
+   if ( present(nh3_source_out) )     nh3_source_out      = nh3_source
 end subroutine oslo_getopts
 
 !===============================================================================
