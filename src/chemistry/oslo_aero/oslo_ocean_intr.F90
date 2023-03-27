@@ -250,6 +250,26 @@ subroutine oslo_ocean_init()
 
    call add_default('odms', 1, ' ')
 
+   call addfld( 'emipomocean', horiz_only,  'A',  'kg/m2/s', 'ocean POM surface flux' )
+
+   call add_default('emipomocean', 1, ' ')
+
+   call addfld( 'emidmsocean', horiz_only,  'A',  'kg/m2/s', 'ocean DMS surface flux' )
+
+   call add_default('emidmsocean', 1, ' ')
+
+   call addfld( 'emichbr3ocean', horiz_only,  'A',  'kg/m2/s', 'ocean CHBR3 surface flux' )
+
+   call add_default('emichbr3ocean', 1, ' ')
+
+   call addfld( 'emin2oocean', horiz_only,  'A',  'kg/m2/s', 'ocean N2O surface flux' )
+
+   call add_default('emin2oocean', 1, ' ')
+
+   call addfld( 'eminh3ocean', horiz_only,  'A',  'kg/m2/s', 'ocean NH3 surface flux' )
+
+   call add_default('eminh3ocean', 1, ' ')
+
 endsubroutine oslo_ocean_init
 !------------------------------------------------------------------------------------------
 !------------------------------------------------------------------------------------------
@@ -346,10 +366,14 @@ subroutine oslo_dms_emis_intr(state, cam_in)
 
       call outfld('odms', odms(:ncol), ncol, lchnk)
 
+      call outfld('emidmsocean', flux(:ncol), ncol, lchnk)
+
    ! IF OCEAN FLUX
    elseif(dms_source=='ocean_flux') then 
 !     cam_in%cflx(:ncol, pndx_fdms)  =  cam_in%fdms(:ncol)
       cam_in%cflx(:ncol, pndx_fdms)  =  cam_in%cflx(:ncol, pndx_fdms) + cam_in%fdms(:ncol)
+      call outfld('emidmsocean', cam_in%fdms(:ncol), ncol, lchnk)   
+
    endif
 
    ! IF EMISSION FILE
@@ -363,17 +387,22 @@ endsubroutine oslo_dms_emis_intr
 subroutine oslo_vsls_emis_intr(state, cam_in)
 
    use physics_types, only: physics_state
+   use cam_history,   only: outfld
 
    type(physics_state),    intent(in)    :: state   ! Physics state variables
    type(cam_in_t), target, intent(inout) :: cam_in  ! import state
 
    integer                               :: ncol       ![nbr] number of columns in use
+   integer                               :: lchnk   ! chunk index                
 
    ncol  = state%ncol
+   lchnk = state%lchnk
 
    ! IF OCEAN FLUX
    if(vsls_source=='ocean_flux') then 
       cam_in%cflx(:ncol, pndx_chbr3)  =  cam_in%fchbr3(:ncol)
+
+      call outfld('emichbr3ocean', cam_in%fchbr3(:ncol), ncol, lchnk)
    endif
 
 endsubroutine oslo_vsls_emis_intr
@@ -383,17 +412,22 @@ endsubroutine oslo_vsls_emis_intr
 subroutine oslo_n2o_emis_intr(state, cam_in)
 
    use physics_types, only: physics_state
+   use cam_history,   only: outfld
 
    type(physics_state),    intent(in)    :: state   ! Physics state variables
    type(cam_in_t), target, intent(inout) :: cam_in  ! import state
 
    integer                               :: ncol       ![nbr] number of columns in use
+   integer                               :: lchnk   ! chunk index
 
    ncol  = state%ncol
+   lchnk = state%lchnk
 
    ! IF OCEAN FLUX
    if(n2o_source=='ocean_flux') then 
       cam_in%cflx(:ncol, pndx_n2o)  =  cam_in%fn2o_ocn(:ncol)
+
+      call outfld('emin2oocean', cam_in%fn2o(:ncol), ncol, lchnk)
    endif
 
 endsubroutine oslo_n2o_emis_intr
@@ -403,17 +437,22 @@ endsubroutine oslo_n2o_emis_intr
 subroutine oslo_nh3_emis_intr(state, cam_in)
 
    use physics_types, only: physics_state
+   use cam_history,   only: outfld
 
    type(physics_state),    intent(in)    :: state   ! Physics state variables
    type(cam_in_t), target, intent(inout) :: cam_in  ! import state
 
    integer                               :: ncol       ![nbr] number of columns in use
+   integer                               :: lchnk   ! chunk index
 
    ncol  = state%ncol
+   lchnk = state%lchnk
 
    ! IF OCEAN FLUX
    if(nh3_source=='ocean_flux') then 
       cam_in%cflx(:ncol, pndx_nh3)  =  cam_in%fnh3_ocn(:ncol)
+
+      call outfld('eminh3ocean', cam_in%fnh3(:ncol), ncol, lchnk)
    endif
 
 endsubroutine oslo_nh3_emis_intr
@@ -422,7 +461,7 @@ endsubroutine oslo_nh3_emis_intr
 
 subroutine oslo_opom_emis_intr(em_ss1,em_ss2,em_ss3,open_ocn,ncol,lchnk, opomem_out)
 
-
+   use cam_history,   only: outfld
 
    integer , intent(in)                    :: ncol              ![nbr] number of columns in use
    integer , intent(in)                    :: lchnk             !current chunk
@@ -482,6 +521,8 @@ subroutine oslo_opom_emis_intr(em_ss1,em_ss2,em_ss3,open_ocn,ncol,lchnk, opomem_
       flux(:ncol)   = c_o*omFrac(:ncol) * em_ss1(:ncol)  
       opomem_out(:ncol) = flux(:ncol)
    endif
+
+   call outfld('emipomocean', opomem_out(:ncol), ncol, lchnk)
 
    ! return?
 
