@@ -427,7 +427,7 @@ subroutine oslo_n2o_emis_intr(state, cam_in)
    if(n2o_source=='ocean_flux') then 
       cam_in%cflx(:ncol, pndx_n2o)  =  cam_in%fn2o_ocn(:ncol)
 
-      call outfld('emin2oocean', cam_in%fn2o(:ncol), ncol, lchnk)
+      call outfld('emin2oocean', cam_in%fn2o_ocn(:ncol), ncol, lchnk)
    endif
 
 endsubroutine oslo_n2o_emis_intr
@@ -452,7 +452,7 @@ subroutine oslo_nh3_emis_intr(state, cam_in)
    if(nh3_source=='ocean_flux') then 
       cam_in%cflx(:ncol, pndx_nh3)  =  cam_in%fnh3_ocn(:ncol)
 
-      call outfld('eminh3ocean', cam_in%fnh3(:ncol), ncol, lchnk)
+      call outfld('eminh3ocean', cam_in%fnh3_ocn(:ncol), ncol, lchnk)
    endif
 
 endsubroutine oslo_nh3_emis_intr
