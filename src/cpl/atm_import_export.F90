@@ -123,6 +123,11 @@ contains
           if (index_x2a_Faoo_fbrf_ocn /= 0) then
              cam_in(c)%fchbr3(i)     = -x2a(index_x2a_Faoo_fbrf_ocn,ig)
           end if
+          ! Get n2o fluxes from lnd in g N /m^2/s units
+          if (index_x2a_Fall_fn2o_lnd /= 0) then
+             cam_in(c)%fn2o_lnd(i)     = -x2a(index_x2a_Fall_fn2o_lnd,ig)
+!             write(iulog,*) 'TAKING FROM COUPLER - cam_in(c)%fn2o_lnd(i) = ', cam_in(c)%fn2o_lnd(i)
+          end if
           ! Get N2O fluxes from ocn in kg N2O /m^2/s units
           if (index_x2a_Faoo_fn2o_ocn /= 0) then
              cam_in(c)%fn2o_ocn(i)     = -x2a(index_x2a_Faoo_fn2o_ocn,ig)

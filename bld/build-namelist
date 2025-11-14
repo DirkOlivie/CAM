@@ -2837,7 +2837,8 @@ if (defined  $lbc_file) {
     if (defined $flbc_list) {
         # If flbc_list has already been defined, check that it contains all
         # the GHGs needed by the radiation code.
-        foreach my $ghg ('CO2','CH4','N2O','CFC11','CFC12') {
+#       foreach my $ghg ('CO2','CH4','N2O','CFC11','CFC12') {
+        foreach my $ghg ('CO2','CH4','CFC11','CFC12') {
             if ($flbc_list !~ /$ghg/) {
                 die "$ProgName - ERROR: $ghg is missing from flbc_list \n";
             }

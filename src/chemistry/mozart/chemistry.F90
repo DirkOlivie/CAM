@@ -143,6 +143,8 @@ module chemistry
 
   logical :: chem_use_chemtrop = .false.
 
+  integer            :: pndx_n2o                        !N2O surface flux physcis index
+
 !================================================================================================
 contains
 !================================================================================================
@@ -769,7 +771,9 @@ end function chem_is_active
     use noy_ubc,             only : noy_ubc_init
     use fire_emissions,      only : fire_emissions_init
     use short_lived_species, only : short_lived_species_initic
-    
+
+    use cam_cpl_indices,     only : index_x2a_Fall_fn2o_lnd
+ 
     type(physics_buffer_desc), pointer :: pbuf2d(:,:)
     type(physics_state), intent(in):: phys_state(begchunk:endchunk)
 
@@ -789,6 +793,9 @@ end function chem_is_active
                                               ! temperature, water vapor, cloud ice and cloud
                                               ! liquid budgets.
     integer :: history_budget_histfile_num    ! output history file number for budget fields
+
+    !get physics index for n2o surface flux.  Index for cflx
+    call cnst_get_ind('N2O', pndx_n2o, abort=.true.)
 
     call phys_getopts( cam_chempkg_out=chem_name, &
                        history_aerosol_out=history_aerosol , &
@@ -958,6 +965,16 @@ end function chem_is_active
 
         enddo
      endif
+
+     ! N2O from land
+
+     write(iulog,*) ' index_x2a_Fall_fn2o_lnd = ', index_x2a_Fall_fn2o_lnd
+     if ( index_x2a_Fall_fn2o_lnd>0 ) then
+
+        call addfld('emin2oland',horiz_only,'A','gN/m2/sec','n2o land emissions flux') 
+        call add_default('emin2oland', 1, ' ')
+
+     endif
      
      call noy_ubc_init()
 
@@ -979,7 +996,7 @@ end function chem_is_active
     use constituents,     only: sflxnam
     use cam_history,      only: outfld
     use mo_srf_emissions, only: set_srf_emissions
-    use cam_cpl_indices,  only: index_x2a_Fall_flxvoc
+    use cam_cpl_indices,  only: index_x2a_Fall_flxvoc, index_x2a_Fall_fn2o_lnd
     use fire_emissions,   only: fire_emissions_srf
 
     ! Arguments:
@@ -1024,6 +1041,21 @@ end function chem_is_active
 
     endif
 
+   ! N2O emissions ...
+
+    if ( index_x2a_Fall_fn2o_lnd>0 ) then
+
+       ! set N2O fluxes 
+       do i =1,ncol
+          ! convert g[N]/m2/s -> kg[N2O]/m2/s 
+          cam_in%cflx(i, pndx_n2o) = cam_in%fn2o_lnd(i) * 0.001 * 44. / 14.
+       enddo
+
+       ! output N2O emis fluxes to history
+       call outfld('emin2oland', cam_in%fn2o_lnd(:ncol), ncol, lchnk)
+
+    endif
+ 
    ! prescribed emissions from file ...
 
     !-----------------------------------------------------------------------      
