@@ -1048,7 +1048,7 @@ end function chem_is_active
        ! set N2O fluxes 
        do i =1,ncol
           ! convert g[N]/m2/s -> kg[N2O]/m2/s 
-          cam_in%cflx(i, pndx_n2o) = cam_in%fn2o_lnd(i) * 0.001 * 44. / 14.
+          cam_in%cflx(i, pndx_n2o) = cam_in%cflx(i, pndx_n2o) + cam_in%fn2o_lnd(i) * 0.001 * 44. / 14.
        enddo
 
        ! output N2O emis fluxes to history
