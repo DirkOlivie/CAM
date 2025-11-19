@@ -305,7 +305,18 @@ contains
        dvelocity(:ncol,spc_ndx(ispec)) = lnd(lchnk)%dvel(:ncol,ispec)*lndfrac(:ncol) &
                                        + ocnice_dvel(:ncol,spc_ndx(ispec))
     enddo
-    
+ 
+    !      
+    do ispec = 1,nddvels
+       !-------------------------------------------------------------------------------------
+       !        ... only use the land component in case of NH3
+       !-------------------------------------------------------------------------------------
+       if ( spc_ndx(ispec) > 0 .and. spc_ndx(ispec) == nh3_ndx ) then
+          dvelocity(:ncol,spc_ndx(ispec)) = lnd(lchnk)%dvel(:ncol,ispec)*lndfrac(:ncol)
+       endif
+
+    enddo
+
     !-------------------------------------------------------------------------------------
     !        ... special adjustments
     !-------------------------------------------------------------------------------------
